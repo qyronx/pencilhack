@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>선화 변환기 - 사진을 라인아트로 무료 변환 | Pencil Hack</title>
+<meta name="description" content="사진이나 그림을 업로드하면 브라우저에서 즉시 선화(라인아트) 스타일로 변환해주는 무료 온라인 도구입니다. 서버 업로드 없이 내 컴퓨터 안에서만 처리되어 안전하며, 선 굵기·색상·감도를 자유롭게 조절할 수 있습니다.">
+<meta name="keywords" content="선화 변환, 라인아트 변환, 스케치 변환, 사진 선화 만들기, 무료 이미지 편집, 투명 배경 PNG, PencilHack, Pencil Hack, 펜슬핵, 팬슬핵">
+<meta name="google-site-verification" content="lhLKhtIFeYuGOSWBmxyVGsxfOHFgyI4aRsnNf7QzYj8" />
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --panel: #ffffff;
+    --ink: #1c1c1c;
+    --muted: #7a7a7a;
+    --accent: #2b6fff;
+    --border: #e2e0da;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Pretendard", "Noto Sans KR", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  header {
+    padding: 40px 24px 16px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 8px; font-size: 26px; letter-spacing: -0.02em; }
+  header p { margin: 0 auto; color: var(--muted); font-size: 15px; max-width: 640px; }
+
+  .content-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .content-section h2 {
+    font-size: 19px;
+    margin: 40px 0 12px;
+    border-left: 4px solid var(--accent);
+    padding-left: 10px;
+  }
+  .content-section p, .content-section li {
+    font-size: 14.5px;
+    color: #333;
+  }
+  .content-section ul, .content-section ol {
+    padding-left: 20px;
+  }
+  .grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .card h3 { margin: 0 0 6px; font-size: 15px; }
+  .card p { margin: 0; font-size: 13.5px; color: var(--muted); }
+
+  .faq-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .faq-item h3 { margin: 0 0 6px; font-size: 14.5px; }
+  .faq-item p { margin: 0; font-size: 13.5px; color: #444; }
+
+  footer {
+    text-align: center;
+    padding: 30px 20px 40px;
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 20px 60px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 800px) {
+    .wrap { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+
+  .drop {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 22px 12px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13px;
+    transition: border-color .15s, background .15s;
+  }
+  .drop.drag { border-color: var(--accent); background: #eef3ff; }
+  .drop input { display: none; }
+
+  .ctrl { margin-top: 18px; }
+  .ctrl label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #444;
+  }
+  .ctrl label span.val { color: var(--accent); font-weight: 600; }
+  .ctrl input[type=range] { width: 100%; }
+
+  select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .btnrow { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .primary { background: var(--accent); color: #fff; }
+  .secondary { background: #eee; color: #333; }
+  .primary:disabled { background: #b9c9f5; cursor: not-allowed; }
+
+  .canvases {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 700px) {
+    .canvases { grid-template-columns: 1fr; }
+  }
+  .cbox {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .cbox h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .canvas-holder {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background:
+      linear-gradient(45deg, #eee 25%, transparent 25%),
+      linear-gradient(-45deg, #eee 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #eee 75%),
+      linear-gradient(-45deg, transparent 75%, #eee 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  canvas { max-width: 100%; max-height: 100%; display: block; }
+  .placeholder { color: #bbb; font-size: 13px; }
+
+  .note {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>✏️ Pencil Hack</h1>
+  <p>사진이나 일러스트를 업로드하면 브라우저 안에서 바로 연필 선화(라인아트) 스타일로 바꿔주는 무료 도구입니다. 파일을 서버로 전송하지 않고 내 컴퓨터에서만 처리되기 때문에 개인 사진도 안심하고 사용할 수 있습니다.</p>
+</header>
+
+<div class="wrap">
+  <div class="panel">
+    <div class="drop" id="drop">
+      <div id="dropText">이미지를 드래그하거나 클릭해서 업로드</div>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <div class="ctrl">
+      <label>엣지 감도(Threshold) <span class="val" id="thresholdVal">40</span></label>
+      <input type="range" id="threshold" min="5" max="120" value="40">
+    </div>
+
+    <div class="ctrl">
+      <label>선 굵기(Blur) <span class="val" id="blurVal">1</span></label>
+      <input type="range" id="blur" min="0" max="5" step="0.5" value="1">
+    </div>
+
+    <div class="ctrl">
+      <label>선 대비(Gamma) <span class="val" id="gammaVal">1.0</span></label>
+      <input type="range" id="gamma" min="0.5" max="2.5" step="0.1" value="1.0">
+    </div>
+
+    <div class="ctrl">
+      <label>모드</label>
+      <select id="mode">
+        <option value="sobel">Sobel (깔끔한 선화)</option>
+        <option value="dog">DoG (스케치 느낌)</option>
+      </select>
+    </div>
+
+    <div class="ctrl">
+      <label>선 색상 <span class="val" id="colorVal">#141414</span></label>
+      <input type="color" id="lineColor" value="#141414" style="width:100%; height:36px; border:1px solid var(--border); border-radius:8px; padding:2px; cursor:pointer;">
+    </div>
+
+    <div class="btnrow">
+      <button class="primary" id="convertBtn" disabled>변환하기</button>
+      <button class="secondary" id="downloadBtn" disabled>다운로드</button>
+    </div>
+    <div class="btnrow">
+      <button class="secondary" id="svgBtn" disabled>SVG 코드 복사</button>
+      <button class="secondary" id="svgDownloadBtn" disabled>SVG 다운로드</button>
+    </div>
+
+    <div class="note">
+      * 모든 처리는 Canvas API로 브라우저 안에서만 실행됩니다.<br>
+      * Threshold를 낮출수록 세밀한 선이 더 많이 잡힙니다.<br>
+      * 결과가 너무 지저분하면 Blur를 올려보세요.
+    </div>
+  </div>
+
+  <div class="canvases">
+    <div class="cbox">
+      <h3>원본</h3>
+      <div class="canvas-holder"><canvas id="srcCanvas"></canvas><div class="placeholder" id="srcPlaceholder">이미지 없음</div></div>
+    </div>
+    <div class="cbox">
+      <h3>선화 결과 (투명 배경 PNG)</h3>
+      <div class="canvas-holder"><canvas id="outCanvas"></canvas><div class="placeholder" id="outPlaceholder">변환 대기중</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="content-section" id="svgSection" style="display:none;">
+  <h2>SVG 코드</h2>
+  <p style="font-size:13px;color:var(--muted);">아래 코드를 복사해서 웹사이트, 디자인 툴 등에 벡터 그래픽으로 바로 사용할 수 있습니다.</p>
+  <textarea id="svgCode" readonly style="width:100%; height:180px; font-family:monospace; font-size:11px; padding:10px; border-radius:8px; border:1px solid var(--border); resize:vertical; background:#fafafa;"></textarea>
+</div>
+
+<div class="content-section">
+
+  <h2>선화 변환기란?</h2>
+  <p>선화(라인아트, Line Art)는 사진이나 그림의 색상과 명암을 제거하고 윤곽선만 남긴 스타일을 말합니다. 만화, 웹툰 밑그림, 컬러링북 도안, 자수 패턴, 스티커 제작 등 다양한 분야에서 활용됩니다. 이 도구는 Sobel 엣지 검출과 DoG(Difference of Gaussian) 알고리즘을 이용해 이미지의 경계선을 자동으로 추출하고, 이를 투명 배경 PNG 형태의 깔끔한 선화로 변환해줍니다.</p>
+
+  <h2>주요 기능</h2>
+  <div class="grid-cards">
+    <div class="card">
+      <h3>🔒 완전한 로컬 처리</h3>
+      <p>이미지가 서버로 전송되지 않고 브라우저 Canvas API에서만 처리되어 개인정보와 저작권 이미지 모두 안전합니다.</p>
+    </div>
+    <div class="card">
+      <h3>🎚️ 세밀한 조절</h3>
+      <p>엣지 감도, 선 굵기, 대비(감마)를 슬라이더로 실시간 조정하며 원하는 결과물을 만들 수 있습니다.</p>
+    </div>
+    <div class="card">
+      <h3>🎨 선 색상 커스텀</h3>
+      <p>기본 검정 선 외에도 원하는 색상을 지정해 컬러 라인아트를 만들 수 있습니다.</p>
+    </div>
+    <div class="card">
+      <h3>🖼️ 투명 배경 PNG</h3>
+      <p>배경이 완전히 투명하게 저장되어 다른 디자인 위에 바로 합성해서 사용할 수 있습니다.</p>
+    </div>
+  </div>
+
+  <h2>사용 방법</h2>
+  <ol>
+    <li>변환하고 싶은 이미지를 업로드 영역에 드래그하거나 클릭해서 선택합니다.</li>
+    <li>필요에 따라 엣지 감도, 선 굵기, 대비, 모드(Sobel/DoG), 선 색상을 조절합니다.</li>
+    <li>"변환하기" 버튼을 눌러 결과를 확인합니다.</li>
+    <li>마음에 드는 결과가 나오면 "다운로드" 버튼으로 투명 배경 PNG 파일을 저장합니다.</li>
+  </ol>
+
+  <h2>이럴 때 활용해보세요</h2>
+  <div class="grid-cards">
+    <div class="card">
+      <h3>컬러링북 도안 제작</h3>
+      <p>사진을 선화로 바꿔서 직접 색칠할 수 있는 나만의 컬러링 페이지를 만들 수 있습니다.</p>
+    </div>
+    <div class="card">
+      <h3>그림 연습용 밑그림</h3>
+      <p>따라 그리기 연습이나 트레이싱용 참고 자료로 활용하기 좋습니다.</p>
+    </div>
+    <div class="card">
+      <h3>로고·스티커 디자인</h3>
+      <p>투명 배경 선화를 다른 이미지나 배경 위에 겹쳐 스티커, 각인 도안 등으로 응용할 수 있습니다.</p>
+    </div>
+    <div class="card">
+      <h3>자수·각인 패턴</h3>
+      <p>단순한 선으로 이루어진 결과물이라 자수나 레이저 각인용 패턴 제작에도 활용됩니다.</p>
+    </div>
+  </div>
+
+  <h2>자주 묻는 질문</h2>
+  <div class="faq-item">
+    <h3>업로드한 사진이 외부 서버에 저장되나요?</h3>
+    <p>아니요. 이 도구는 모든 이미지 처리를 브라우저 안의 Canvas API로 수행하며, 파일을 어떤 서버로도 전송하지 않습니다. 페이지를 닫으면 처리된 데이터도 함께 사라집니다.</p>
+  </div>
+  <div class="faq-item">
+    <h3>어떤 이미지가 가장 잘 변환되나요?</h3>
+    <p>윤곽이 뚜렷한 인물 일러스트, 캐릭터, 사물 사진이 가장 깔끔하게 변환됩니다. 배경이 복잡하거나 대비가 낮은 사진은 Threshold와 Blur 값을 조절해 원하는 결과를 찾아보세요.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Sobel 모드와 DoG 모드의 차이는 무엇인가요?</h3>
+    <p>Sobel 모드는 경계선을 뚜렷하고 균일하게 추출해 깔끔한 만화체 선화에 적합하고, DoG 모드는 좀 더 부드럽고 손그림 같은 스케치 느낌의 선을 만들어줍니다.</p>
+  </div>
+  <div class="faq-item">
+    <h3>결과물을 상업적으로 사용해도 되나요?</h3>
+    <p>변환된 결과물의 저작권은 원본 이미지의 저작권 상태를 따릅니다. 본인이 저작권을 보유했거나 사용 권한이 있는 이미지에만 이 도구를 사용해주세요.</p>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 Pencil Hack · 브라우저 기반 무료 선화 변환 도구
+</footer>
+
+<script>
+const drop = document.getElementById('drop');
+const dropText = document.getElementById('dropText');
+const fileInput = document.getElementById('fileInput');
+const srcCanvas = document.getElementById('srcCanvas');
+const outCanvas = document.getElementById('outCanvas');
+const srcPlaceholder = document.getElementById('srcPlaceholder');
+const outPlaceholder = document.getElementById('outPlaceholder');
+const convertBtn = document.getElementById('convertBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const svgBtn = document.getElementById('svgBtn');
+const svgDownloadBtn = document.getElementById('svgDownloadBtn');
+const svgSection = document.getElementById('svgSection');
+const svgCode = document.getElementById('svgCode');
+let lastSvgString = '';
+
+const thresholdInput = document.getElementById('threshold');
+const blurInput = document.getElementById('blur');
+const gammaInput = document.getElementById('gamma');
+const modeInput = document.getElementById('mode');
+const lineColorInput = document.getElementById('lineColor');
+const colorVal = document.getElementById('colorVal');
+const thresholdVal = document.getElementById('thresholdVal');
+const blurVal = document.getElementById('blurVal');
+const gammaVal = document.getElementById('gammaVal');
+
+let currentImg = null;
+
+thresholdInput.oninput = () => thresholdVal.textContent = thresholdInput.value;
+blurInput.oninput = () => blurVal.textContent = blurInput.value;
+gammaInput.oninput = () => gammaVal.textContent = parseFloat(gammaInput.value).toFixed(1);
+lineColorInput.oninput = () => colorVal.textContent = lineColorInput.value;
+
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => {
+  e.preventDefault(); drop.classList.add('drag');
+}));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => {
+  e.preventDefault(); drop.classList.remove('drag');
+}));
+drop.addEventListener('drop', e => {
+  const f = e.dataTransfer.files[0];
+  if (f) loadFile(f);
+});
+drop.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => {
+  if (e.target.files[0]) loadFile(e.target.files[0]);
+});
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      currentImg = img;
+      const MAX = 900;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        const scale = MAX / Math.max(w,h);
+        w = Math.round(w*scale); h = Math.round(h*scale);
+      }
+      srcCanvas.width = w; srcCanvas.height = h;
+      const ctx = srcCanvas.getContext('2d');
+      ctx.clearRect(0,0,w,h);
+      ctx.drawImage(img, 0, 0, w, h);
+      srcPlaceholder.style.display = 'none';
+      outPlaceholder.style.display = 'block';
+      outCanvas.width = 0; outCanvas.height = 0;
+      convertBtn.disabled = false;
+      downloadBtn.disabled = true;
+      svgBtn.disabled = true;
+      svgDownloadBtn.disabled = true;
+      svgSection.style.display = 'none';
+      svgCode.value = '';
+      dropText.textContent = file.name;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function getGray(imgData) {
+  const {data, width, height} = imgData;
+  const gray = new Float32Array(width*height);
+  for (let i=0, p=0; i<data.length; i+=4, p++) {
+    // luminance
+    gray[p] = 0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2];
+  }
+  return gray;
+}
+
+function boxBlur(gray, w, h, radius) {
+  if (radius <= 0) return gray;
+  const r = Math.max(1, Math.round(radius));
+  let src = gray;
+  // horizontal pass
+  let tmp = new Float32Array(w*h);
+  for (let y=0; y<h; y++) {
+    let rowOff = y*w;
+    for (let x=0; x<w; x++) {
+      let sum=0, cnt=0;
+      for (let k=-r; k<=r; k++) {
+        let xx = x+k;
+        if (xx>=0 && xx<w) { sum += src[rowOff+xx]; cnt++; }
+      }
+      tmp[rowOff+x] = sum/cnt;
+    }
+  }
+  // vertical pass
+  let out = new Float32Array(w*h);
+  for (let x=0; x<w; x++) {
+    for (let y=0; y<h; y++) {
+      let sum=0, cnt=0;
+      for (let k=-r; k<=r; k++) {
+        let yy = y+k;
+        if (yy>=0 && yy<h) { sum += tmp[yy*w+x]; cnt++; }
+      }
+      out[y*w+x] = sum/cnt;
+    }
+  }
+  return out;
+}
+
+function sobelEdges(gray, w, h) {
+  const gx = [-1,0,1,-2,0,2,-1,0,1];
+  const gy = [-1,-2,-1,0,0,0,1,2,1];
+  const mag = new Float32Array(w*h);
+  let maxVal = 0;
+  for (let y=1; y<h-1; y++) {
+    for (let x=1; x<w-1; x++) {
+      let sx=0, sy=0, idx=0;
+      for (let ky=-1; ky<=1; ky++) {
+        for (let kx=-1; kx<=1; kx++) {
+          const v = gray[(y+ky)*w + (x+kx)];
+          sx += v*gx[idx];
+          sy += v*gy[idx];
+          idx++;
+        }
+      }
+      const m = Math.sqrt(sx*sx + sy*sy);
+      mag[y*w+x] = m;
+      if (m > maxVal) maxVal = m;
+    }
+  }
+  return {mag, maxVal};
+}
+
+function convert() {
+  if (!currentImg) return;
+  const w = srcCanvas.width, h = srcCanvas.height;
+  const sctx = srcCanvas.getContext('2d');
+  const imgData = sctx.getImageData(0,0,w,h);
+  let gray = getGray(imgData);
+
+  const blurAmt = parseFloat(blurInput.value);
+  const threshold = parseFloat(thresholdInput.value);
+  const gamma = parseFloat(gammaInput.value);
+  const mode = modeInput.value;
+
+  let mag, maxVal;
+
+  if (mode === 'dog') {
+    // Difference of Gaussians for sketch-like lines
+    const g1 = boxBlur(gray, w, h, Math.max(0.5, blurAmt));
+    const g2 = boxBlur(gray, w, h, Math.max(0.5, blurAmt) * 2.5 + 1);
+    const dog = new Float32Array(w*h);
+    let mv = 0;
+    for (let i=0;i<w*h;i++){
+      const d = Math.abs(g1[i]-g2[i]);
+      dog[i]=d;
+      if (d>mv) mv=d;
+    }
+    mag = dog; maxVal = mv;
+  } else {
+    const blurred = blurAmt > 0 ? boxBlur(gray, w, h, blurAmt) : gray;
+    const res = sobelEdges(blurred, w, h);
+    mag = res.mag; maxVal = res.maxVal;
+  }
+
+  const hex = lineColorInput.value;
+  const rC = parseInt(hex.slice(1,3), 16);
+  const gC = parseInt(hex.slice(3,5), 16);
+  const bC = parseInt(hex.slice(5,7), 16);
+
+  const outData = new ImageData(w, h);
+  const thNorm = (threshold/120) * (maxVal || 1);
+  for (let p=0; p<w*h; p++) {
+    let v = mag[p];
+    let lineStrength = v > thNorm ? (v - thNorm) / ((maxVal - thNorm) || 1) : 0;
+    lineStrength = Math.min(1, Math.max(0, lineStrength));
+    lineStrength = Math.pow(lineStrength, 1/gamma);
+    // transparent background, colored line, alpha = line strength
+    const o = p*4;
+    outData.data[o] = rC;
+    outData.data[o+1] = gC;
+    outData.data[o+2] = bC;
+    outData.data[o+3] = Math.round(lineStrength*255);
+  }
+
+  outCanvas.width = w; outCanvas.height = h;
+  const octx = outCanvas.getContext('2d');
+  octx.putImageData(outData, 0, 0);
+  outPlaceholder.style.display = 'none';
+  downloadBtn.disabled = false;
+
+  lastSvgString = buildSvgFromImageData(outData, w, h, hex);
+  svgCode.value = lastSvgString;
+  svgSection.style.display = 'block';
+  svgBtn.disabled = false;
+  svgDownloadBtn.disabled = false;
+}
+
+// Build a pixel-accurate SVG: run-length encode each row into <rect> elements
+// grouped by alpha value, so the SVG renders identically to the canvas PNG.
+function buildSvgFromImageData(imgData, w, h, hexColor) {
+  const data = imgData.data;
+  // quantize alpha into buckets to keep path/rect count reasonable
+  const BUCKETS = 16;
+  const rowsByAlpha = {};
+
+  for (let y = 0; y < h; y++) {
+    let x = 0;
+    while (x < w) {
+      const idx = (y*w + x) * 4;
+      const a = data[idx+3];
+      const bucket = Math.round((a/255) * BUCKETS);
+      if (bucket === 0) { x++; continue; }
+      let runStart = x;
+      while (x < w) {
+        const idx2 = (y*w + x) * 4;
+        const a2 = data[idx2+3];
+        const b2 = Math.round((a2/255) * BUCKETS);
+        if (b2 !== bucket) break;
+        x++;
+      }
+      const runLen = x - runStart;
+      if (!rowsByAlpha[bucket]) rowsByAlpha[bucket] = [];
+      rowsByAlpha[bucket].push(`M${runStart},${y}h${runLen}v1h-${runLen}z`);
+    }
+  }
+
+  let paths = '';
+  Object.keys(rowsByAlpha).sort((a,b)=>a-b).forEach(bucket => {
+    const opacity = (bucket / BUCKETS).toFixed(3);
+    const d = rowsByAlpha[bucket].join('');
+    paths += `<path d="${d}" fill="${hexColor}" fill-opacity="${opacity}"/>\n`;
+  });
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">\n${paths}</svg>`;
+}
+
+convertBtn.addEventListener('click', convert);
+[thresholdInput, blurInput, gammaInput, modeInput, lineColorInput].forEach(el => {
+  el.addEventListener('input', () => { if (outCanvas.width > 0) convert(); });
+});
+
+downloadBtn.addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'lineart.png';
+  link.href = outCanvas.toDataURL('image/png');
+  link.click();
+});
+
+svgBtn.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(lastSvgString);
+    svgBtn.textContent = '복사됨!';
+    setTimeout(() => svgBtn.textContent = 'SVG 코드 복사', 1500);
+  } catch (e) {
+    svgCode.select();
+    document.execCommand('copy');
+    svgBtn.textContent = '복사됨!';
+    setTimeout(() => svgBtn.textContent = 'SVG 코드 복사', 1500);
+  }
+});
+
+svgDownloadBtn.addEventListener('click', () => {
+  const blob = new Blob([lastSvgString], {type: 'image/svg+xml'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = 'lineart.svg';
+  link.href = url;
+  link.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+
+</body>
+</html>
